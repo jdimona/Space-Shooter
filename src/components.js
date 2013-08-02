@@ -24,7 +24,7 @@ Crafty.c('Actor', {
 
 Crafty.c('Player', {
 	init: function() {
-		this.life = 100;
+		this.health = 100;
 
 		var scrSize = ss.Config.screenSize,
 				plrSize = ss.Config.playerSize,
@@ -50,12 +50,25 @@ Crafty.c('Player', {
 			this.x -= this._movement.x;
 			this.y -= this._movement.y;
 		}
+	},
+
+	takeDamage: function(damage) {
+		console.log('here');
+		this.health -= damage;
+		if (this.health <= 0) {
+			this.die();
+		}
+	},
+
+	die: function() {
+		this.destroy();
 	}
 });
 
 Crafty.c('PlayerLaser', {
 	init: function() {
 		var lzrSize = ss.Config.laserSize;
+		this.speed = ss.Config.playerLaserSpeed;
 		this.damage = 30;
 
 		this.requires('Actor, Collision, spr_plrLaser')
@@ -65,8 +78,7 @@ Crafty.c('PlayerLaser', {
 	},
 
 	moveUp: function() {
-		var lsrSpeed = ss.Config.playerLaserSpeed;
-		this.move('n', lsrSpeed);
+		this.move('n', this.speed);
 		if(this.y > Crafty.viewport.height || this.y < 0) 
     	this.destroy();
 	},
@@ -111,6 +123,7 @@ Crafty.c('SquarePath', {
 
 	squarepath: function(size) {
 		this.pathSize = size;
+		return this;
 	},
 
 	run: function() {
@@ -126,6 +139,32 @@ Crafty.c('SquarePath', {
 	}
 });
 
+Crafty.c('EnemyLaser', {
+	init: function() {
+		var lzrSize = ss.Config.laserSize;
+		this.speed = ss.Config.playerLaserSpeed;
+		this.damage = 30;
+
+		this.requires('Actor, Collision, spr_plrLaser')
+			.attr({w: lzrSize, h: lzrSize})
+			.onHit('Player', this.causeDamage)
+			.bind('EnterFrame', this.moveDown);
+	},
+
+	moveDown: function() {
+		this.move('s', this.speed);
+		if(this.y > Crafty.viewport.height || this.y < 0) 
+    	this.destroy();
+	},
+
+	causeDamage: function(e) {
+		for (var i = 0; i < e.length; i++) {
+			e[i].obj.takeDamage(this.damage);
+		}
+		this.destroy();
+	}
+});
+
 Crafty.c('Enemy', {
 	init: function() {
 		var enmySize = ss.Config.enemySize;
@@ -135,6 +174,14 @@ Crafty.c('Enemy', {
 		this.requires('Actor, Collision, SquarePath, DropDown, spr_enmyShip')
 			.attr({w: enmySize, h: enmySize})
 			.squarepath(enmySize * 2)
+			.bind('EnterFrame', this.shoot);
+	},
+
+	shoot: function(e) {
+		var sparsity = Crafty.math.randomInt(100, 500);
+		if(e.frame % sparsity == 0) {
+			Crafty.e('EnemyLaser').at(this.x  + (this.w * .5), this.y + this.w);
+		}
 	},
 
 	takeDamage: function(damage) {

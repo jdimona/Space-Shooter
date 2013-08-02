@@ -27,12 +27,12 @@ Crafty.scene('Loading', function() {
 	Crafty.e('2D, DOM, Text')
 		.text('Loading...');
 
-	var assets = ['assets/ship5.png', 'assets/ship2.png', 'assets/spr_bullet_strip.png'];
+	var assets = ['assets/ship5.png', 'assets/ship2.png', 'assets/bullet1.png', 'assets/bullet2.pnd'];
 	Crafty.load(assets, function() {
-		Crafty.sprite(426, 269, 'assets/ship2.png', {spr_enmyShip: [0, 0]});
-		Crafty.sprite(34, 34, 'assets/spr_bullet_strip.png',
-			{spr_plrLaser: [0, 0]});
 		Crafty.sprite(366, 304, 'assets/ship5.png', {spr_plrShip: [0, 0]});
+		Crafty.sprite(426, 269, 'assets/ship2.png', {spr_enmyShip: [0, 0]});
+		Crafty.sprite(34, 34, 'assets/bullet1.png', {spr_plrLaser: [0, 0]});
+		Crafty.sprite(34, 34, 'assets/bullet2.png', {spr_enmyLaser: [0, 0]});
 		Crafty.scene('Game');
 	});
 });
