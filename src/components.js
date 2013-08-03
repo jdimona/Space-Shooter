@@ -7,6 +7,41 @@ Crafty.c('Side', {
 	}
 });
 
+Crafty.c('Health', {
+	init: function() {
+		this.amount = 100;
+
+		this.requires('2D, DOM, Text')
+			.text('Health: ' + this.amount)
+			.attr({x: Crafty.viewport.width - 125, y: 10, w: 125, h:20})
+			.textColor('#FFFFFF')
+			.textFont({ size: '16px'});
+	},
+
+	update: function(amount) {
+		this.amount += amount;
+		this.text('Health: ' + this.amount)
+	}
+});
+
+Crafty.c('Money', {
+	init: function() {
+		this.amount = 0;
+
+		this.requires('2D, DOM, Text')
+			.text('Money: $' + this.amount)
+			.attr({x: Crafty.viewport.width - 125, y: 30, w: 125, h:20})
+			.textColor('#FFFFFF')
+			.textFont({ size: '16px'})
+			.bind('AddMoney', this.update);
+	},
+
+	update: function(e) {
+		this.amount += e.amount;
+		this.text('Money: $' + this.amount);
+	}
+});
+
 Crafty.c('Actor', {
 	init: function() {
 		this.requires('2D, Canvas');
@@ -24,11 +59,11 @@ Crafty.c('Actor', {
 
 Crafty.c('Player', {
 	init: function() {
-		this.health = 100;
-
 		var scrSize = ss.Config.screenSize,
 				plrSize = ss.Config.playerSize,
 				plrSpeed = scrSize * .02;
+		this.health = Crafty.e('Health');
+		this.money = Crafty.e('Money');
 
 		this.requires('Actor, Multiway, Collision, Controls, spr_plrShip')
 			.attr({w: plrSize, h: plrSize})
@@ -53,9 +88,8 @@ Crafty.c('Player', {
 	},
 
 	takeDamage: function(damage) {
-		console.log('here');
-		this.health -= damage;
-		if (this.health <= 0) {
+		this.health.update(-damage);
+		if (this.health.amount <= 0) {
 			this.die();
 		}
 	},
@@ -141,11 +175,11 @@ Crafty.c('SquarePath', {
 
 Crafty.c('EnemyLaser', {
 	init: function() {
-		var lzrSize = ss.Config.laserSize;
+		var lzrSize = ss.Config.enemyLaserSize;
 		this.speed = ss.Config.playerLaserSpeed;
 		this.damage = 30;
 
-		this.requires('Actor, Collision, spr_plrLaser')
+		this.requires('Actor, Collision, spr_enmyLaser')
 			.attr({w: lzrSize, h: lzrSize})
 			.onHit('Player', this.causeDamage)
 			.bind('EnterFrame', this.moveDown);
@@ -192,6 +226,7 @@ Crafty.c('Enemy', {
 	},
 
 	die: function() {
+		Crafty.trigger('AddMoney', {amount: 25});
 		this.destroy();
 	}
 });
