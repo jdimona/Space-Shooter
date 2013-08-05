@@ -177,7 +177,7 @@ Crafty.c('EnemyLaser', {
 	init: function() {
 		var lzrSize = ss.Config.enemyLaserSize;
 		this.speed = ss.Config.playerLaserSpeed;
-		this.damage = 30;
+		this.damage = 20;
 
 		this.requires('Actor, Collision, spr_enmyLaser')
 			.attr({w: lzrSize, h: lzrSize})
@@ -212,7 +212,7 @@ Crafty.c('Enemy', {
 	},
 
 	shoot: function(e) {
-		var sparsity = Crafty.math.randomInt(100, 500);
+		var sparsity = Crafty.math.randomInt(200, 500);
 		if(e.frame % sparsity == 0) {
 			Crafty.e('EnemyLaser').at(this.x  + (this.w * .5), this.y + this.w);
 		}
